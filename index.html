@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanish Made Fun! Quiz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#fdf6ff;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px}
+#app{width:100%;max-width:480px;margin:0 auto}
+.card{background:#fff;border-radius:20px;box-shadow:0 4px 28px rgba(0,0,0,.10);width:100%;padding:0 0 24px 0;overflow:hidden}
+.menu-inner{padding:28px 24px 8px}
+.brand{text-align:center;font-size:.68rem;text-transform:uppercase;letter-spacing:.13em;color:#9e9e9e;margin-bottom:6px}
+.menu-card h1{font-size:1.25rem;color:#1a237e;text-align:center;margin-bottom:3px}
+.menu-emoji{text-align:center;font-size:1.6rem;margin-bottom:4px}
+.menu-subtitle{text-align:center;font-size:.82rem;color:#607d8b;margin-bottom:22px}
+.menu-btn{display:block;width:100%;padding:13px 16px;margin:9px 0;border:none;border-radius:11px;font-size:.97rem;font-weight:700;cursor:pointer;transition:all .2s;color:#fff}
+.menu-btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+.stats-bar{display:flex;justify-content:space-around;padding:14px 16px 12px;border-bottom:1px solid #f0f0f0;margin-bottom:4px}
+.stat-item{text-align:center;flex:1}
+.stat-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.stat-label.pts{color:#f59e0b}
+.stat-label.ok{color:#16a34a}
+.stat-label.err{color:#dc2626}
+.stat-label.pct{color:#7c3aed}
+.stat-value{font-size:1.05rem;font-weight:800;color:#1a1a2e}
+.sec-header{padding:14px 20px 0}
+.sec-header h2{font-size:1rem;font-weight:800;color:#1a237e;display:flex;align-items:center;gap:6px}
+.sec-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.sec-header p{font-size:.75rem;color:#78909c;margin-top:2px}
+.progress-wrap{padding:10px 20px 14px}
+.progress-row{display:flex;justify-content:space-between;font-size:.72rem;color:#9e9e9e;margin-bottom:5px}
+.progress-bar-bg{background:#f0f0f0;border-radius:8px;height:6px}
+.progress-bar-fill{height:6px;border-radius:8px;transition:width .35s}
+.q-body{padding:0 20px}
+.q-text{font-size:.97rem;font-weight:700;color:#1a1a2e;margin-bottom:14px;line-height:1.55}
+.q-num{color:#7b1fa2}
+.opt-btn{display:block;width:100%;text-align:left;padding:12px 16px;margin:7px 0;border:2px solid #e8e8f0;border-radius:12px;background:#f8f8fc;font-size:.92rem;cursor:pointer;transition:all .18s;color:#2d2d3a;font-weight:500}
+.opt-btn:hover:not(:disabled){border-color:#7b1fa2;background:#f3e8ff;color:#4a148c}
+.opt-btn.correct{border-color:#16a34a!important;background:#dcfce7!important;color:#14532d!important;font-weight:700}
+.opt-btn.wrong{border-color:#dc2626!important;background:#fee2e2!important;color:#7f1d1d!important}
+.opt-btn:disabled{cursor:default}
+.feedback{padding:10px 14px;border-radius:10px;font-size:.88rem;font-weight:700;margin:10px 0;text-align:center}
+.feedback.correct{background:#dcfce7;color:#14532d}
+.feedback.wrong{background:#fee2e2;color:#7f1d1d}
+.hint-btn{display:block;width:100%;padding:10px;margin:10px 0;border:2px dashed #fb8c00;border-radius:10px;background:#fff8e1;color:#e65100;font-size:.85rem;cursor:pointer;font-weight:700;transition:all .18s}
+.hint-btn:hover{background:#ffe0b2}
+.hint-box{background:#fff3e0;border:1.5px solid #fcd34d;border-radius:9px;padding:10px 13px;font-size:.84rem;color:#92400e;margin:8px 0;font-weight:500}
+.next-btn{display:block;width:100%;padding:14px;color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:12px;transition:all .2s}
+.exit-btn{display:block;width:calc(100% - 40px);margin:12px 20px 0;padding:10px;background:#fff0f0;border:2px solid #ef9a9a;border-radius:11px;color:#c62828;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s}
+.exit-btn:hover{background:#ef9a9a;border-color:#c62828;color:#b71c1c}
+.end-wrap{padding:28px 24px 8px;text-align:center}
+.end-icon{font-size:3.2rem;margin-bottom:8px}
+.end-title{font-size:1.35rem;font-weight:800;color:#1a237e;margin-bottom:6px}
+.end-msg{font-size:.9rem;color:#607d8b;margin-bottom:18px}
+.stars{display:flex;justify-content:center;gap:7px;margin-bottom:18px}
+.star{font-size:2.1rem;opacity:0;transform:scale(0);transition:all .38s cubic-bezier(.34,1.56,.64,1)}
+.star.show{opacity:1;transform:scale(1)}
+.end-pills{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-bottom:22px}
+.end-pill{padding:9px 16px;border-radius:22px;font-size:.87rem;font-weight:800}
+.ep-pts{background:#fef3c7;color:#92400e}
+.ep-ok{background:#dcfce7;color:#14532d}
+.ep-err{background:#fee2e2;color:#7f1d1d}
+.ep-pct{background:#ede9fe;color:#4c1d95}
+.try-btn{display:block;width:100%;padding:13px;color:#fff;border:none;border-radius:12px;font-size:.97rem;font-weight:800;cursor:pointer;margin-bottom:10px}
+.menu-back-btn{display:block;width:100%;padding:12px;background:#f5f5f5;border:2px solid #d1d5db;border-radius:12px;font-size:.92rem;font-weight:700;color:#374151;cursor:pointer;margin-bottom:14px}
+.review-box{background:#f5f3ff;border:2px solid #c4b5fd;border-radius:14px;padding:20px;margin-top:16px;text-align:left}
+.review-box h3{font-size:.92rem;color:#1a1a2e;margin-bottom:10px;font-weight:800}
+.review-box .rq{font-weight:800;font-size:.9rem;color:#1a237e;margin-bottom:10px}
+.review-box p{font-size:.82rem;color:#4b5563;line-height:1.65;margin-bottom:10px}
+.review-link-btn{display:block;width:100%;padding:12px;background:#1a1a2e;color:#fff;border:none;border-radius:10px;font-size:.88rem;font-weight:800;cursor:pointer;margin-bottom:8px;text-align:center;text-decoration:none;transition:background .2s}
+.review-link-btn:hover{background:#2e2e4e}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var PAPERBACK_ASIN='B0FDB699YH';
+var HARDCOVER_ASIN='B0FD8NDJ34';
+
+var SECTIONS=[
+  {
+    id:'sec1',title:'Section 1 \u2013 Animals',emoji:'\uD83D\uDC3E',
+    subtitle:'Animals / Animales',
+    grad:'linear-gradient(135deg,#e53935,#b71c1c)',dot:'#e53935',
+    questions:[
+      {q:'What is "dog" in Spanish?',hint:'It sounds like "PEH-roh".',options:[{t:'Perro',c:true},{t:'Gato',c:false},{t:'P\u00e1jaro',c:false},{t:'Conejo',c:false}]},
+      {q:'What is "cat" in Spanish?',hint:'It sounds like "GAH-toh".',options:[{t:'Gato',c:true},{t:'Perro',c:false},{t:'Mono',c:false},{t:'Tigre',c:false}]},
+      {q:'What is "elephant" in Spanish?',hint:'It sounds like "Eh-leh-FAHN-teh".',options:[{t:'Elefante',c:true},{t:'Le\u00f3n',c:false},{t:'Jirafa',c:false},{t:'Vaca',c:false}]},
+      {q:'What is "lion" in Spanish?',hint:'It sounds like "Leh-OHN".',options:[{t:'Le\u00f3n',c:true},{t:'Tigre',c:false},{t:'Mono',c:false},{t:'Elefante',c:false}]},
+      {q:'What does "P\u00e1jaro" mean in English?',hint:'It sounds like "PAH-ha-roh" and it can fly!',options:[{t:'Bird',c:true},{t:'Fish',c:false},{t:'Rabbit',c:false},{t:'Horse',c:false}]},
+      {q:'What does "Pez" mean in English?',hint:'This animal lives in water.',options:[{t:'Fish',c:true},{t:'Bird',c:false},{t:'Pig',c:false},{t:'Cow',c:false}]},
+      {q:'What is "monkey" in Spanish?',hint:'It sounds like "MOH-noh".',options:[{t:'Mono',c:true},{t:'Conejo',c:false},{t:'Jirafa',c:false},{t:'Vaca',c:false}]},
+      {q:'What is "giraffe" in Spanish?',hint:'It sounds like "Hee-RAH-fah".',options:[{t:'Jirafa',c:true},{t:'Elefante',c:false},{t:'Le\u00f3n',c:false},{t:'Tigre',c:false}]},
+      {q:'What does "Conejo" mean in English?',hint:'This animal is small and furry with long ears.',options:[{t:'Rabbit',c:true},{t:'Pig',c:false},{t:'Cow',c:false},{t:'Horse',c:false}]},
+      {q:'What is "tiger" in Spanish?',hint:'It sounds like "TEE-greh".',options:[{t:'Tigre',c:true},{t:'Le\u00f3n',c:false},{t:'Mono',c:false},{t:'Perro',c:false}]},
+      {q:'What does "Vaca" mean in English?',hint:'This animal gives us milk.',options:[{t:'Cow',c:true},{t:'Horse',c:false},{t:'Pig',c:false},{t:'Rabbit',c:false}]},
+      {q:'What is "horse" in Spanish?',hint:'It sounds like "KAH-bah-yoh".',options:[{t:'Caballo',c:true},{t:'Vaca',c:false},{t:'Cerdo',c:false},{t:'Conejo',c:false}]},
+      {q:'What does "Cerdo" mean in English?',hint:'This farm animal is pink and loves mud.',options:[{t:'Pig',c:true},{t:'Cow',c:false},{t:'Horse',c:false},{t:'Dog',c:false}]},
+      {q:'What is "fish" in Spanish?',hint:'It sounds like "Pehs" \u2014 short and simple!',options:[{t:'Pez',c:true},{t:'P\u00e1jaro',c:false},{t:'Perro',c:false},{t:'Gato',c:false}]},
+      {q:'What does "Elefante" mean in English?',hint:'The biggest land animal!',options:[{t:'Elephant',c:true},{t:'Giraffe',c:false},{t:'Tiger',c:false},{t:'Lion',c:false}]}
+    ]
+  },
+  {
+    id:'sec2',title:'Section 2 \u2013 Food',emoji:'\uD83C\uDF4E',
+    subtitle:'Food / Comida',
+    grad:'linear-gradient(135deg,#f57c00,#e65100)',dot:'#f57c00',
+    questions:[
+      {q:'What is "apple" in Spanish?',hint:'It sounds like "mahn-SAH-nah".',options:[{t:'Manzana',c:true},{t:'Pl\u00e1tano',c:false},{t:'Queso',c:false},{t:'Arroz',c:false}]},
+      {q:'What is "banana" in Spanish?',hint:'It sounds like "PLAH-tah-noh".',options:[{t:'Pl\u00e1tano',c:true},{t:'Manzana',c:false},{t:'Leche',c:false},{t:'Pollo',c:false}]},
+      {q:'What does "Queso" mean in English?',hint:'This goes great on pizza or crackers!',options:[{t:'Cheese',c:true},{t:'Egg',c:false},{t:'Milk',c:false},{t:'Bread',c:false}]},
+      {q:'What is "egg" in Spanish?',hint:'It sounds like "WEH-voh".',options:[{t:'Huevo',c:true},{t:'Pollo',c:false},{t:'Arroz',c:false},{t:'Leche',c:false}]},
+      {q:'What does "Pescado" mean in English?',hint:'This food comes from the sea.',options:[{t:'Fish',c:true},{t:'Chicken',c:false},{t:'Rice',c:false},{t:'Salad',c:false}]},
+      {q:'What is "milk" in Spanish?',hint:'It sounds like "LEH-cheh".',options:[{t:'Leche',c:true},{t:'Queso',c:false},{t:'Agua',c:false},{t:'Jugo',c:false}]},
+      {q:'What does "Arroz" mean in English?',hint:'It sounds like "ah-RROHS" \u2014 a popular grain.',options:[{t:'Rice',c:true},{t:'Bread',c:false},{t:'Egg',c:false},{t:'Soup',c:false}]},
+      {q:'What is "chicken" in Spanish?',hint:'It sounds like "POH-yoh".',options:[{t:'Pollo',c:true},{t:'Pescado',c:false},{t:'Huevo',c:false},{t:'Cerdo',c:false}]},
+      {q:'What does "Ensalada" mean in English?',hint:'It sounds like "en-sah-LAH-dah" \u2014 a healthy green dish.',options:[{t:'Salad',c:true},{t:'Soup',c:false},{t:'Sandwich',c:false},{t:'Pasta',c:false}]},
+      {q:'What is "bread" in Spanish?',hint:'It sounds like "PAHN" \u2014 very short!',options:[{t:'Pan',c:true},{t:'Arroz',c:false},{t:'Queso',c:false},{t:'Leche',c:false}]},
+      {q:'What does "Pizza" mean in English?',hint:'This one is easy \u2014 same word!',options:[{t:'Pizza',c:true},{t:'Pasta',c:false},{t:'Pie',c:false},{t:'Pancake',c:false}]},
+      {q:'What is "soup" in Spanish?',hint:'It sounds like "SOH-pah".',options:[{t:'Sopa',c:true},{t:'Ensalada',c:false},{t:'Leche',c:false},{t:'Jugo',c:false}]},
+      {q:'What does "Jugo" mean in English?',hint:'A fruity drink you pour from a carton.',options:[{t:'Juice',c:true},{t:'Milk',c:false},{t:'Water',c:false},{t:'Soup',c:false}]},
+      {q:'What is "water" in Spanish?',hint:'It sounds like "AH-gwah".',options:[{t:'Agua',c:true},{t:'Leche',c:false},{t:'Jugo',c:false},{t:'Sopa',c:false}]},
+      {q:'What does "Pl\u00e1tano" mean in English?',hint:'A yellow fruit monkeys love!',options:[{t:'Banana',c:true},{t:'Apple',c:false},{t:'Mango',c:false},{t:'Orange',c:false}]}
+    ]
+  },
+  {
+    id:'sec3',title:'Section 3 \u2013 School Items',emoji:'\u270f\ufe0f',
+    subtitle:'School Items / Objetos Escolares',
+    grad:'linear-gradient(135deg,#1e88e5,#1565c0)',dot:'#1e88e5',
+    questions:[
+      {q:'What is "pencil" in Spanish?',hint:'It sounds like "LAH-pees".',options:[{t:'L\u00e1piz',c:true},{t:'Libro',c:false},{t:'Regla',c:false},{t:'Cinta',c:false}]},
+      {q:'What is "backpack" in Spanish?',hint:'It sounds like "moh-CHEE-lah".',options:[{t:'Mochila',c:true},{t:'Cuaderno',c:false},{t:'L\u00e1piz',c:false},{t:'Libro',c:false}]},
+      {q:'What does "Cuaderno" mean in English?',hint:'You write your homework in this.',options:[{t:'Notebook',c:true},{t:'Book',c:false},{t:'Eraser',c:false},{t:'Ruler',c:false}]},
+      {q:'What is "book" in Spanish?',hint:'It sounds like "LEE-broh".',options:[{t:'Libro',c:true},{t:'Cuaderno',c:false},{t:'Mochila',c:false},{t:'L\u00e1piz',c:false}]},
+      {q:'What does "Borrador" mean in English?',hint:'You use this to fix pencil mistakes.',options:[{t:'Eraser',c:true},{t:'Ruler',c:false},{t:'Glue',c:false},{t:'Tape',c:false}]},
+      {q:'What is "ruler" in Spanish?',hint:'It sounds like "REH-glah".',options:[{t:'Regla',c:true},{t:'Borrador',c:false},{t:'Cinta',c:false},{t:'Pegamento',c:false}]},
+      {q:'What does "Pegamento" mean in English?',hint:'You use this to stick things together.',options:[{t:'Glue',c:true},{t:'Tape',c:false},{t:'Scissors',c:false},{t:'Eraser',c:false}]},
+      {q:'What is "tape" in Spanish?',hint:'It sounds like "SEEN-tah".',options:[{t:'Cinta',c:true},{t:'Pegamento',c:false},{t:'Regla',c:false},{t:'Libro',c:false}]},
+      {q:'What does "Tijeras" mean in English?',hint:'You use these to cut paper. Snip snip!',options:[{t:'Scissors',c:true},{t:'Ruler',c:false},{t:'Tape',c:false},{t:'Glue',c:false}]},
+      {q:'What is "pencil case" in Spanish?',hint:'It sounds like "es-too-CHEH".',options:[{t:'Estuche',c:true},{t:'Mochila',c:false},{t:'Cuaderno',c:false},{t:'L\u00e1piz',c:false}]},
+      {q:'What does "Silla" mean in English?',hint:'You sit on this in class.',options:[{t:'Chair',c:true},{t:'Desk',c:false},{t:'Board',c:false},{t:'Ruler',c:false}]},
+      {q:'What is "desk" in Spanish?',hint:'It sounds like "pu-PEE-treh".',options:[{t:'Pupitre',c:true},{t:'Silla',c:false},{t:'Pizarra',c:false},{t:'Cuaderno',c:false}]},
+      {q:'What does "Pizarra" mean in English?',hint:'The teacher writes on this at the front of class.',options:[{t:'Blackboard',c:true},{t:'Desk',c:false},{t:'Notebook',c:false},{t:'Book',c:false}]},
+      {q:'What is "pen" in Spanish?',hint:'It sounds like "bohl-EE-grah-foh".',options:[{t:'Bol\u00edgrafo',c:true},{t:'L\u00e1piz',c:false},{t:'Cinta',c:false},{t:'Regla',c:false}]},
+      {q:'What does "Mochila" mean in English?',hint:'You carry your books and supplies in this.',options:[{t:'Backpack',c:true},{t:'Pencil case',c:false},{t:'Notebook',c:false},{t:'Book',c:false}]}
+    ]
+  },
+  {
+    id:'sec4',title:'Section 4 \u2013 Nature',emoji:'\uD83C\uDF33',
+    subtitle:'Nature / Naturaleza',
+    grad:'linear-gradient(135deg,#43a047,#2e7d32)',dot:'#43a047',
+    questions:[
+      {q:'What is "tree" in Spanish?',hint:'It sounds like "AHR-bol".',options:[{t:'\u00c1rbol',c:true},{t:'Flor',c:false},{t:'Luna',c:false},{t:'Estrella',c:false}]},
+      {q:'What is "flower" in Spanish?',hint:'It sounds like "FLOR" \u2014 very easy!',options:[{t:'Flor',c:true},{t:'\u00c1rbol',c:false},{t:'Sol',c:false},{t:'Nube',c:false}]},
+      {q:'What does "Sol" mean in English?',hint:'It shines in the sky during the day.',options:[{t:'Sun',c:true},{t:'Moon',c:false},{t:'Star',c:false},{t:'Cloud',c:false}]},
+      {q:'What is "moon" in Spanish?',hint:'It sounds like "LOO-nah".',options:[{t:'Luna',c:true},{t:'Sol',c:false},{t:'Estrella',c:false},{t:'Nube',c:false}]},
+      {q:'What does "Estrella" mean in English?',hint:'These twinkle in the night sky!',options:[{t:'Star',c:true},{t:'Moon',c:false},{t:'Cloud',c:false},{t:'Rain',c:false}]},
+      {q:'What is "cloud" in Spanish?',hint:'It sounds like "NOO-beh".',options:[{t:'Nube',c:true},{t:'Lluvia',c:false},{t:'R\u00edo',c:false},{t:'Mar',c:false}]},
+      {q:'What does "Lluvia" mean in English?',hint:'You need an umbrella for this!',options:[{t:'Rain',c:true},{t:'Snow',c:false},{t:'Wind',c:false},{t:'Cloud',c:false}]},
+      {q:'What is "river" in Spanish?',hint:'It sounds like "REE-oh".',options:[{t:'R\u00edo',c:true},{t:'Mar',c:false},{t:'Lago',c:false},{t:'Lluvia',c:false}]},
+      {q:'What does "Monta\u00f1a" mean in English?',hint:'The tallest natural landform.',options:[{t:'Mountain',c:true},{t:'River',c:false},{t:'Sea',c:false},{t:'Forest',c:false}]},
+      {q:'What is "sea" in Spanish?',hint:'It sounds like "MAR" \u2014 short and salty!',options:[{t:'Mar',c:true},{t:'R\u00edo',c:false},{t:'Lago',c:false},{t:'Lluvia',c:false}]},
+      {q:'What does "Lago" mean in English?',hint:'Like the sea but surrounded by land.',options:[{t:'Lake',c:true},{t:'River',c:false},{t:'Ocean',c:false},{t:'Rain',c:false}]},
+      {q:'What is "forest" in Spanish?',hint:'It sounds like "BOHS-keh".',options:[{t:'Bosque',c:true},{t:'\u00c1rbol',c:false},{t:'Monta\u00f1a',c:false},{t:'Mar',c:false}]},
+      {q:'What does "Viento" mean in English?',hint:'It blows leaves off the trees!',options:[{t:'Wind',c:true},{t:'Rain',c:false},{t:'Snow',c:false},{t:'Storm',c:false}]},
+      {q:'What is "rock" in Spanish?',hint:'It sounds like "ROH-kah".',options:[{t:'Roca',c:true},{t:'Arena',c:false},{t:'Tierra',c:false},{t:'Bosque',c:false}]},
+      {q:'What does "\u00c1rbol" mean in English?',hint:'Plants grow from seeds, but these grow very tall!',options:[{t:'Tree',c:true},{t:'Flower',c:false},{t:'Grass',c:false},{t:'Bush',c:false}]}
+    ]
+  },
+  {
+    id:'sec5',title:'Section 5 \u2013 Family',emoji:'\uD83D\uDC68\u200d\uD83D\uDC69\u200d\uD83D\uDC67\u200d\uD83D\uDC66',
+    subtitle:'Family / Familia',
+    grad:'linear-gradient(135deg,#8e24aa,#6a1b9a)',dot:'#8e24aa',
+    questions:[
+      {q:'What is "family" in Spanish?',hint:'It sounds like "fah-MEE-lee-ah".',options:[{t:'Familia',c:true},{t:'Padre',c:false},{t:'Madre',c:false},{t:'Hermano',c:false}]},
+      {q:'What is "mother" in Spanish?',hint:'It sounds like "MAH-dreh".',options:[{t:'Madre',c:true},{t:'Padre',c:false},{t:'Abuela',c:false},{t:'Hermana',c:false}]},
+      {q:'What does "Padre" mean in English?',hint:'He is the male parent.',options:[{t:'Father',c:true},{t:'Brother',c:false},{t:'Grandfather',c:false},{t:'Uncle',c:false}]},
+      {q:'What is "grandmother" in Spanish?',hint:'It sounds like "ah-BWEH-lah".',options:[{t:'Abuela',c:true},{t:'Abuelo',c:false},{t:'Madre',c:false},{t:'Hermana',c:false}]},
+      {q:'What does "Hermano" mean in English?',hint:'Your parents\u2019 son \u2014 not you!',options:[{t:'Brother',c:true},{t:'Sister',c:false},{t:'Cousin',c:false},{t:'Uncle',c:false}]},
+      {q:'What is "sister" in Spanish?',hint:'It sounds like "ehr-MAH-nah".',options:[{t:'Hermana',c:true},{t:'Hermano',c:false},{t:'Prima',c:false},{t:'T\u00eda',c:false}]},
+      {q:'What does "Abuelo" mean in English?',hint:'The male grandparent.',options:[{t:'Grandfather',c:true},{t:'Grandmother',c:false},{t:'Uncle',c:false},{t:'Father',c:false}]},
+      {q:'What is "uncle" in Spanish?',hint:'It sounds like "T\u00EEoh".',options:[{t:'T\u00edo',c:true},{t:'T\u00eda',c:false},{t:'Primo',c:false},{t:'Hermano',c:false}]},
+      {q:'What does "T\u00eda" mean in English?',hint:'Your parent\u2019s sister.',options:[{t:'Aunt',c:true},{t:'Uncle',c:false},{t:'Cousin',c:false},{t:'Sister',c:false}]},
+      {q:'What is "cousin (f)" in Spanish?',hint:'It sounds like "PREE-mah".',options:[{t:'Prima',c:true},{t:'Primo',c:false},{t:'Hermana',c:false},{t:'T\u00eda',c:false}]},
+      {q:'What does "Beb\u00e9" mean in English?',hint:'The smallest, newest member of the family!',options:[{t:'Baby',c:true},{t:'Child',c:false},{t:'Toddler',c:false},{t:'Boy',c:false}]},
+      {q:'What is "parents" in Spanish?',hint:'It sounds like "PAH-dres" \u2014 the plural.',options:[{t:'Padres',c:true},{t:'Hermanos',c:false},{t:'Abuelos',c:false},{t:'Familia',c:false}]},
+      {q:'What does "Mom" mean in Spanish? (informal)',hint:'The informal, warm word kids use every day.',options:[{t:'Mam\u00e1',c:true},{t:'Madre',c:false},{t:'Abuela',c:false},{t:'T\u00eda',c:false}]},
+      {q:'What is "son" in Spanish?',hint:'It sounds like "EE-hoh".',options:[{t:'Hijo',c:true},{t:'Hija',c:false},{t:'Hermano',c:false},{t:'Primo',c:false}]},
+      {q:'What does "Hija" mean in English?',hint:'The female child of a parent.',options:[{t:'Daughter',c:true},{t:'Son',c:false},{t:'Sister',c:false},{t:'Niece',c:false}]}
+    ]
+  },
+  {
+    id:'sec6',title:'Section 6 \u2013 Community Helpers',emoji:'\uD83D\uDE92',
+    subtitle:'Community Helpers / Trabajadores de la Comunidad',
+    grad:'linear-gradient(135deg,#00838f,#006064)',dot:'#00838f',
+    questions:[
+      {q:'What is "teacher (m)" in Spanish?',hint:'It sounds like "mah-EHS-troh".',options:[{t:'Maestro',c:true},{t:'Doctor',c:false},{t:'Bombero',c:false},{t:'Polic\u00eda',c:false}]},
+      {q:'What is "doctor (f)" in Spanish?',hint:'It sounds like "dok-TOH-rah".',options:[{t:'Doctora',c:true},{t:'Enferma',c:false},{t:'Maestra',c:false},{t:'Bombera',c:false}]},
+      {q:'What does "Bombero" mean in English?',hint:'This hero fights fires!',options:[{t:'Firefighter',c:true},{t:'Police officer',c:false},{t:'Doctor',c:false},{t:'Nurse',c:false}]},
+      {q:'What is "nurse (m)" in Spanish?',hint:'It sounds like "en-fehr-MEH-roh".',options:[{t:'Enfermero',c:true},{t:'Maestro',c:false},{t:'Cocinero',c:false},{t:'Cartero',c:false}]},
+      {q:'What does "Polic\u00eda" mean in English?',hint:'This person keeps the community safe.',options:[{t:'Police officer',c:true},{t:'Firefighter',c:false},{t:'Doctor',c:false},{t:'Teacher',c:false}]},
+      {q:'What is "chef (m)" in Spanish?',hint:'It sounds like "koh-see-NEH-roh".',options:[{t:'Cocinero',c:true},{t:'Granjero',c:false},{t:'Cartero',c:false},{t:'Maestro',c:false}]},
+      {q:'What does "Granjero" mean in English?',hint:'This person grows our food on the land.',options:[{t:'Farmer',c:true},{t:'Chef',c:false},{t:'Mail carrier',c:false},{t:'Plumber',c:false}]},
+      {q:'What is "mail carrier (m)" in Spanish?',hint:'It sounds like "kar-TEH-roh".',options:[{t:'Cartero',c:true},{t:'Granjero',c:false},{t:'Cocinero',c:false},{t:'Bombero',c:false}]},
+      {q:'What does "Plomero" mean in English?',hint:'This person fixes leaky pipes.',options:[{t:'Plumber',c:true},{t:'Electrician',c:false},{t:'Carpenter',c:false},{t:'Farmer',c:false}]},
+      {q:'What is "dentist (m)" in Spanish?',hint:'It sounds like "den-TEES-tah".',options:[{t:'Dentista',c:true},{t:'Doctor',c:false},{t:'Enfermero',c:false},{t:'Maestro',c:false}]},
+      {q:'What does "Carpintero" mean in English?',hint:'This person builds things from wood.',options:[{t:'Carpenter',c:true},{t:'Plumber',c:false},{t:'Farmer',c:false},{t:'Chef',c:false}]},
+      {q:'What is "pilot (m)" in Spanish?',hint:'It sounds like "pee-LOH-toh".',options:[{t:'Piloto',c:true},{t:'Conductor',c:false},{t:'Bombero',c:false},{t:'Maestro',c:false}]},
+      {q:'What does "Conductor" mean in English?',hint:'This person drives a bus or train.',options:[{t:'Driver',c:true},{t:'Pilot',c:false},{t:'Police officer',c:false},{t:'Carpenter',c:false}]},
+      {q:'What is "veterinarian" in Spanish?',hint:'It sounds like "veh-teh-ree-NAH-ree-oh".',options:[{t:'Veterinario',c:true},{t:'Dentista',c:false},{t:'Doctor',c:false},{t:'Enfermero',c:false}]},
+      {q:'What does "Maestra" mean in English?',hint:'The female version of maestro.',options:[{t:'Teacher (f)',c:true},{t:'Doctor (f)',c:false},{t:'Nurse (f)',c:false},{t:'Chef (f)',c:false}]}
+    ]
+  },
+  {
+    id:'sec7',title:'Section 7 \u2013 House',emoji:'\uD83C\uDFE0',
+    subtitle:'House / Casa',
+    grad:'linear-gradient(135deg,#f4511e,#bf360c)',dot:'#f4511e',
+    questions:[
+      {q:'What is "house" in Spanish?',hint:'It sounds like "KAH-sah".',options:[{t:'Casa',c:true},{t:'Sala',c:false},{t:'Cocina',c:false},{t:'Ba\u00f1o',c:false}]},
+      {q:'What is "kitchen" in Spanish?',hint:'It sounds like "koh-SEE-nah".',options:[{t:'Cocina',c:true},{t:'Ba\u00f1o',c:false},{t:'Sala',c:false},{t:'Dormitorio',c:false}]},
+      {q:'What does "Ba\u00f1o" mean in English?',hint:'You brush your teeth and shower here.',options:[{t:'Bathroom',c:true},{t:'Bedroom',c:false},{t:'Kitchen',c:false},{t:'Living room',c:false}]},
+      {q:'What is "living room" in Spanish?',hint:'It sounds like "SAH-lah".',options:[{t:'Sala',c:true},{t:'Cocina',c:false},{t:'Ba\u00f1o',c:false},{t:'Dormitorio',c:false}]},
+      {q:'What does "Dormitorio" mean in English?',hint:'You sleep in this room.',options:[{t:'Bedroom',c:true},{t:'Bathroom',c:false},{t:'Kitchen',c:false},{t:'Living room',c:false}]},
+      {q:'What is "door" in Spanish?',hint:'It sounds like "PWEHR-tah".',options:[{t:'Puerta',c:true},{t:'Ventana',c:false},{t:'Cama',c:false},{t:'Mesa',c:false}]},
+      {q:'What does "Ventana" mean in English?',hint:'You look outside through this.',options:[{t:'Window',c:true},{t:'Door',c:false},{t:'Wall',c:false},{t:'Roof',c:false}]},
+      {q:'What is "bed" in Spanish?',hint:'It sounds like "KAH-mah".',options:[{t:'Cama',c:true},{t:'Sof\u00e1',c:false},{t:'Mesa',c:false},{t:'Puerta',c:false}]},
+      {q:'What does "Refrigerador" mean in English?',hint:'You keep your food cold in this.',options:[{t:'Refrigerator',c:true},{t:'Stove',c:false},{t:'Sink',c:false},{t:'Microwave',c:false}]},
+      {q:'What is "table" in Spanish?',hint:'It sounds like "MEH-sah".',options:[{t:'Mesa',c:true},{t:'Sof\u00e1',c:false},{t:'Cama',c:false},{t:'L\u00e1mpara',c:false}]},
+      {q:'What does "Ducha" mean in English?',hint:'You use this to wash yourself with warm water.',options:[{t:'Shower',c:true},{t:'Sink',c:false},{t:'Bathtub',c:false},{t:'Toilet',c:false}]},
+      {q:'What is "mirror" in Spanish?',hint:'It sounds like "eh-SPEH-hoh".',options:[{t:'Espejo',c:true},{t:'L\u00e1mpara',c:false},{t:'Llave',c:false},{t:'Toalla',c:false}]},
+      {q:'What does "Toalla" mean in English?',hint:'You dry yourself with this after a shower.',options:[{t:'Towel',c:true},{t:'Sheet',c:false},{t:'Blanket',c:false},{t:'Pillow',c:false}]},
+      {q:'What is "key" in Spanish?',hint:'It sounds like "YAH-beh".',options:[{t:'Llave',c:true},{t:'Puerta',c:false},{t:'Espejo',c:false},{t:'Cama',c:false}]},
+      {q:'What does "Apartamento" mean in English?',hint:'A home inside a bigger building.',options:[{t:'Apartment',c:true},{t:'House',c:false},{t:'Room',c:false},{t:'Kitchen',c:false}]}
+    ]
+  },
+  {
+    id:'mastery',title:'Spanish Mastery Test',emoji:'\uD83C\uDFC6',
+    subtitle:'Final review \u2014 all 7 sections!',
+    grad:'linear-gradient(135deg,#7b1fa2,#4a148c)',dot:'#7b1fa2',
+    questions:[
+      {q:'What is "dog" in Spanish?',hint:'Section 1 \u2014 Animals. Sounds like "PEH-roh".',options:[{t:'Perro',c:true},{t:'Gato',c:false},{t:'Mono',c:false},{t:'Pez',c:false}]},
+      {q:'What does "Manzana" mean in English?',hint:'Section 2 \u2014 Food. A red or green fruit.',options:[{t:'Apple',c:true},{t:'Banana',c:false},{t:'Mango',c:false},{t:'Orange',c:false}]},
+      {q:'What is "pencil" in Spanish?',hint:'Section 3 \u2014 School. Sounds like "LAH-pees".',options:[{t:'L\u00e1piz',c:true},{t:'Libro',c:false},{t:'Regla',c:false},{t:'Mochila',c:false}]},
+      {q:'What does "Estrella" mean in English?',hint:'Section 4 \u2014 Nature. These twinkle at night!',options:[{t:'Star',c:true},{t:'Moon',c:false},{t:'Sun',c:false},{t:'Cloud',c:false}]},
+      {q:'What is "grandmother" in Spanish?',hint:'Section 5 \u2014 Family. Sounds like "ah-BWEH-lah".',options:[{t:'Abuela',c:true},{t:'Madre',c:false},{t:'Hermana',c:false},{t:'T\u00eda',c:false}]},
+      {q:'What does "Bombero" mean in English?',hint:'Section 6 \u2014 Community. A brave hero!',options:[{t:'Firefighter',c:true},{t:'Police officer',c:false},{t:'Doctor',c:false},{t:'Nurse',c:false}]},
+      {q:'What is "kitchen" in Spanish?',hint:'Section 7 \u2014 House. Sounds like "koh-SEE-nah".',options:[{t:'Cocina',c:true},{t:'Sala',c:false},{t:'Ba\u00f1o',c:false},{t:'Dormitorio',c:false}]},
+      {q:'What does "Le\u00f3n" mean in English?',hint:'Section 1 \u2014 Animals. The king of the jungle!',options:[{t:'Lion',c:true},{t:'Tiger',c:false},{t:'Elephant',c:false},{t:'Monkey',c:false}]},
+      {q:'What is "milk" in Spanish?',hint:'Section 2 \u2014 Food. Sounds like "LEH-cheh".',options:[{t:'Leche',c:true},{t:'Agua',c:false},{t:'Jugo',c:false},{t:'Sopa',c:false}]},
+      {q:'What does "Bosque" mean in English?',hint:'Section 4 \u2014 Nature. A place full of trees.',options:[{t:'Forest',c:true},{t:'Mountain',c:false},{t:'River',c:false},{t:'Lake',c:false}]},
+      {q:'What is "brother" in Spanish?',hint:'Section 5 \u2014 Family. Sounds like "ehr-MAH-noh".',options:[{t:'Hermano',c:true},{t:'Hermana',c:false},{t:'Primo',c:false},{t:'T\u00edo',c:false}]},
+      {q:'What does "Maestra" mean in English?',hint:'Section 6 \u2014 Community. She teaches students.',options:[{t:'Teacher (f)',c:true},{t:'Doctor (f)',c:false},{t:'Nurse (f)',c:false},{t:'Chef (f)',c:false}]},
+      {q:'What is "window" in Spanish?',hint:'Section 7 \u2014 House. Sounds like "ben-TAH-nah".',options:[{t:'Ventana',c:true},{t:'Puerta',c:false},{t:'Cama',c:false},{t:'Mesa',c:false}]},
+      {q:'What does "Cuaderno" mean in English?',hint:'Section 3 \u2014 School. You write your notes in this.',options:[{t:'Notebook',c:true},{t:'Book',c:false},{t:'Backpack',c:false},{t:'Pencil',c:false}]},
+      {q:'What does "Familia" mean in English?',hint:'Section 5 \u2014 the word that connects everyone.',options:[{t:'Family',c:true},{t:'Friend',c:false},{t:'Home',c:false},{t:'Community',c:false}]}
+    ]
+  }
+];
+
+function getSrc(){var p=new URLSearchParams(window.location.search);return p.get('src')||'';}
+function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+
+var state={screen:'menu',sectionIdx:0,qIdx:0,questions:[],pts:0,correct:0,wrong:0,hintUsed:false,answered:false};
+
+function render(){
+  var app=document.getElementById('app');
+  if(state.screen==='menu') app.innerHTML=renderMenu();
+  else if(state.screen==='quiz') app.innerHTML=renderQuiz();
+  else if(state.screen==='end') app.innerHTML=renderEnd();
+  if(state.screen==='end'){
+    var pct=state.questions.length>0?Math.round((state.correct/state.questions.length)*100):0;
+    if(pct>=70)[0,1,2,3,4].forEach(function(i){setTimeout(function(){var el=document.getElementById('star'+i);if(el)el.classList.add('show');},200+i*180);});
+  }
+}
+
+function renderMenu(){
+  var btns=SECTIONS.map(function(s,i){
+    return '<button class="menu-btn" style="background:'+s.grad+'" onclick="startSection('+i+')">'+s.emoji+' '+s.title+'</button>';
+  }).join('');
+  return '<div class="card menu-card"><div class="menu-inner"><div class="brand">Agarutan Print</div><div class="menu-emoji">\uD83C\uDF1F</div><h1>Spanish Made Fun!</h1><div class="menu-subtitle">A Vocabulary Workbook for Kids Ages 6\u201312</div>'+btns+'</div></div>';
+}
+
+function statsBar(){
+  var total=state.questions.length;
+  var pct=total>0?Math.round((state.correct/total)*100):0;
+  return '<div class="stats-bar">'
+    +'<div class="stat-item"><div class="stat-label pts">\u2B50 Points</div><div class="stat-value">'+state.pts+'</div></div>'
+    +'<div class="stat-item"><div class="stat-label ok">\u2705 Correct</div><div class="stat-value">'+state.correct+'</div></div>'
+    +'<div class="stat-item"><div class="stat-label err">\u274C Wrong</div><div class="stat-value">'+state.wrong+'</div></div>'
+    +'<div class="stat-item"><div class="stat-label pct">\uD83C\uDFAF Score</div><div class="stat-value">'+pct+'%</div></div>'
+    +'</div>';
+}
+
+function renderQuiz(){
+  var sec=SECTIONS[state.sectionIdx];
+  var q=state.questions[state.qIdx];
+  var total=state.questions.length;
+  var prog=Math.round((state.qIdx/total)*100);
+  var opts=q._shuffledOpts.map(function(o,i){
+    var cls='opt-btn';
+    if(state.answered){if(o.c)cls+=' correct';else if(o._chosen)cls+=' wrong';}
+    return '<button class="'+cls+'" '+(state.answered?'disabled':'')+' onclick="chooseOpt('+i+')">'+o.t+'</button>';
+  }).join('');
+  var feedback='';
+  if(state.answered){
+    var chose=q._shuffledOpts.filter(function(o){return o._chosen;})[0];
+    feedback=chose&&chose.c
+      ?'<div class="feedback correct">\u2705 Correct! +'+(state.hintUsed?5:10)+' points</div>'
+      :'<div class="feedback wrong">\u274C Not quite \u2014 the correct answer is highlighted in green.</div>';
+  }
+  var hintHtml='';
+  if(!state.answered&&!state.hintUsed) hintHtml='<button class="hint-btn" onclick="showHint()">\uD83D\uDCA1 Show Hint (\u22125 pts)</button>';
+  var hintBox=state.hintUsed?'<div class="hint-box">\uD83D\uDCA1 '+q.hint+'</div>':'';
+  var nextLabel=state.qIdx<total-1?'Next \u2192':'See Results';
+  var nextBtn=state.answered?'<button class="next-btn" style="background:'+sec.grad+'" onclick="nextQ()">'+nextLabel+'</button>':'';
+  return '<div class="card">'
+    +statsBar()
+    +'<div class="sec-header"><h2><span class="sec-dot" style="background:'+sec.dot+'"></span>'+sec.emoji+' '+sec.title+'</h2><p>'+sec.subtitle+'</p></div>'
+    +'<div class="progress-wrap"><div class="progress-row"><span>Question '+(state.qIdx+1)+' of '+total+'</span><span>'+(state.qIdx+1)+'/'+total+'</span></div>'
+    +'<div class="progress-bar-bg"><div class="progress-bar-fill" style="width:'+prog+'%;background:'+sec.grad+'"></div></div></div>'
+    +'<div class="q-body"><div class="q-text"><span class="q-num">Q'+(state.qIdx+1)+'.</span> '+q.q+'</div>'
+    +opts+hintHtml+hintBox+feedback+nextBtn+'</div>'
+    +'<button class="exit-btn" onclick="goMenu()">\u2715 Exit to Menu</button></div>';
+}
+
+function renderEnd(){
+  var sec=SECTIONS[state.sectionIdx];
+  var total=state.questions.length;
+  var pct=total>0?Math.round((state.correct/total)*100):0;
+  var src=getSrc();
+  var isMastery=sec.id==='mastery';
+  var starHtml='<div class="stars">'+[0,1,2,3,4].map(function(i){return '<span class="star" id="star'+i+'">\u2B50</span>';}).join('')+'</div>';
+  var celebration='';
+  if(pct===100) celebration='<div class="end-icon">\uD83C\uDFC6</div><div class="end-title">\uD83C\uDFC6 Spectacular!</div>'+starHtml+'<div class="end-msg">Perfect score! \u00a1Excelente!</div>';
+  else if(pct>=85) celebration='<div class="end-icon">\u2B50</div><div class="end-title">\u2B50 Excellent!</div>'+starHtml+'<div class="end-msg">You scored '+pct+'% \u2014 \u00a1Muy bien!</div>';
+  else if(pct>=70) celebration='<div class="end-icon">\uD83C\uDF1F</div><div class="end-title">\uD83C\uDF1F Great Job!</div>'+starHtml+'<div class="end-msg">You scored '+pct+'% \u2014 \u00a1Bien hecho!</div>';
+  else celebration='<div class="end-icon">\uD83D\uDCAA</div><div class="end-title">Keep Practicing!</div><div class="end-msg">You got '+pct+'%. \u00a1S\u00ed puedes! \u2014 Review and try again!</div>';
+  var pills='<div class="end-pills"><span class="end-pill ep-pts">\uD83C\uDFC5 '+state.pts+' pts</span><span class="end-pill ep-ok">\u2705 '+state.correct+'</span><span class="end-pill ep-err">\u274C '+state.wrong+'</span><span class="end-pill ep-pct">\uD83C\uDFAF '+pct+'%</span></div>';
+  var reviewBox='';
+  if(isMastery&&pct>=70&&src){
+    var btns='';
+    if(src==='etsy') btns='<a class="review-link-btn" href="https://www.etsy.com/your/purchases" target="_blank">\u2B50 Leave a Review on Etsy</a>';
+    else if(src==='amazon') btns='<a class="review-link-btn" href="https://www.amazon.com/review/create-review?asin='+PAPERBACK_ASIN+'" target="_blank">\u2B50 Review Paperback on Amazon</a>'+(HARDCOVER_ASIN?'<a class="review-link-btn" href="https://www.amazon.com/review/create-review?asin='+HARDCOVER_ASIN+'" target="_blank">\u2B50 Review Hardcover on Amazon</a>':'');
+    reviewBox='<div class="review-box"><h3>\uD83D\uDD12 Notice: For Parents &amp; Educators</h3><div class="rq">How did you like this complete resource bundle?</div><p>Thank you for choosing Agarutan Print! We hope this combination of printable worksheets, the digital fillable PDF, and the interactive quiz bonus is helping to build your student\'s skills.</p><p>If this comprehensive resource bundle added value to your student\'s learning experience, please take a brief moment to share your feedback. Your review helps us continue creating high-quality learning assets!</p>'+btns+'</div>';
+  }
+  return '<div class="card"><div class="end-wrap">'+celebration+pills
+    +'<button class="try-btn" style="background:'+sec.grad+'" onclick="startSection('+state.sectionIdx+')">\uD83D\uDD04 Try Again</button>'
+    +'<button class="menu-back-btn" onclick="goMenu()">\uD83C\uDFE0 Back to Menu</button>'
+    +reviewBox+'</div></div>';
+}
+
+window.startSection=function(idx){
+  var sec=SECTIONS[idx];
+  var qs=shuffle(sec.questions).map(function(q){
+    return {q:q.q,hint:q.hint,_shuffledOpts:shuffle(q.options.map(function(o){return {t:o.t,c:o.c,_chosen:false};}))};
+  });
+  state={screen:'quiz',sectionIdx:idx,qIdx:0,questions:qs,pts:0,correct:0,wrong:0,hintUsed:false,answered:false};
+  render();
+};
+window.chooseOpt=function(i){
+  if(state.answered) return;
+  var q=state.questions[state.qIdx];
+  q._shuffledOpts[i]._chosen=true;
+  state.answered=true;
+  if(q._shuffledOpts[i].c){state.pts+=state.hintUsed?5:10;state.correct++;}
+  else state.wrong++;
+  render();
+};
+window.showHint=function(){state.hintUsed=true;render();};
+window.nextQ=function(){state.qIdx++;state.answered=false;state.hintUsed=false;if(state.qIdx>=state.questions.length)state.screen='end';render();};
+window.goMenu=function(){state.screen='menu';render();};
+render();
+</script>
+</body>
+</html>
