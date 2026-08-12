@@ -337,12 +337,6 @@ function renderEnd(){
   else celebration='<div class="end-icon">\uD83D\uDCAA</div><div class="end-title">Keep Practicing!</div><div class="end-msg">You got '+pct+'%. \u00a1S\u00ed puedes! \u2014 Review and try again!</div>';
   var pills='<div class="end-pills"><span class="end-pill ep-pts">\uD83C\uDFC5 '+state.pts+' pts</span><span class="end-pill ep-ok">\u2705 '+state.correct+'</span><span class="end-pill ep-err">\u274C '+state.wrong+'</span><span class="end-pill ep-pct">\uD83C\uDFAF '+pct+'%</span></div>';
   var reviewBox='';
-  if(isMastery&&pct>=70&&src){
-    var btns='';
-    if(src==='etsy') btns='<a class="review-link-btn" href="https://www.etsy.com/your/purchases" target="_blank">\u2B50 Leave a Review on Etsy</a>';
-    else if(src==='amazon') btns='<a class="review-link-btn" href="https://www.amazon.com/review/create-review?asin='+PAPERBACK_ASIN+'" target="_blank">\u2B50 Review Paperback on Amazon</a>'+(HARDCOVER_ASIN?'<a class="review-link-btn" href="https://www.amazon.com/review/create-review?asin='+HARDCOVER_ASIN+'" target="_blank">\u2B50 Review Hardcover on Amazon</a>':'');
-    reviewBox='<div class="review-box"><h3>\uD83D\uDD12 Notice: For Parents &amp; Educators</h3><div class="rq">How did you like this complete resource bundle?</div><p>Thank you for choosing Agarutan Print! We hope this combination of printable worksheets, the digital fillable PDF, and the interactive quiz bonus is helping to build your student\'s skills.</p><p>If this comprehensive resource bundle added value to your student\'s learning experience, please take a brief moment to share your feedback. Your review helps us continue creating high-quality learning assets!</p>'+btns+'</div>';
-  }
   return '<div class="card"><div class="end-wrap">'+celebration+pills
     +'<button class="try-btn" style="background:'+sec.grad+'" onclick="startSection('+state.sectionIdx+')">\uD83D\uDD04 Try Again</button>'
     +'<button class="menu-back-btn" onclick="goMenu()">\uD83C\uDFE0 Back to Menu</button>'
